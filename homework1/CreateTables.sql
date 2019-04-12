@@ -1,0 +1,91 @@
+CREATE TABLE ATTR_TYPES (
+  attr_type_id NUMBER PRIMARY KEY, 
+  name VARCHAR2(45) UNIQUE,
+  properties VARCHAR2(45)
+);
+
+CREATE TABLE ATTR_GROUPS (
+  attr_group_id NUMBER PRIMARY KEY, 
+  name VARCHAR2(45) UNIQUE,
+  properties VARCHAR2(45)
+);
+
+CREATE TABLE OBJECT_TYPES (
+  object_type_id NUMBER PRIMARY KEY,
+  parent_id NUMBER,
+  name VARCHAR2(45) UNIQUE,
+  description VARCHAR2(45),
+  properties VARCHAR2(45)
+);
+
+ALTER TABLE OBJECT_TYPES ADD FOREIGN KEY
+(parent_id) REFERENCES OBJECT_TYPES (object_type_id);
+
+CREATE TABLE OBJECTS (
+  object_id NUMBER PRIMARY KEY,
+  parent_id NUMBER,
+  object_type_id NUMBER NOT NULL,
+  name VARCHAR2(45),
+  description VARCHAR2(45),
+  order_number NUMBER
+);
+
+ALTER TABLE OBJECTS ADD FOREIGN KEY
+(parent_id) REFERENCES OBJECTS (object_id);
+ALTER TABLE OBJECTS ADD FOREIGN KEY
+(object_type_id) REFERENCES OBJECT_TYPES (object_type_id);
+
+CREATE TABLE ATTRIBUTES (
+  attr_id NUMBER PRIMARY KEY,
+  attr_type_id NUMBER NOT NULL,
+  attr_group_id NUMBER NOT NULL,
+  name VARCHAR2(45) UNIQUE,
+  description VARCHAR2(45),
+  ismultiple NUMBER(1),
+  properties VARCHAR2(45)
+);
+
+ALTER TABLE ATTRIBUTES ADD FOREIGN KEY
+(attr_type_id) REFERENCES ATTR_TYPES(attr_type_id);
+ALTER TABLE ATTRIBUTES ADD FOREIGN KEY
+(attr_group_id) REFERENCES ATTR_GROUPS(attr_group_id);
+
+CREATE TABLE ATTR_BINDS (
+  object_type_id NUMBER NOT NULL,
+  attr_id NUMBER NOT NULL,
+  options VARCHAR2(45) UNIQUE,
+  isrequired NUMBER(1),
+  default_value VARCHAR2(45)
+);
+
+ALTER TABLE ATTR_BINDS ADD FOREIGN KEY
+(object_type_id) REFERENCES OBJECT_TYPES(object_type_id);
+ALTER TABLE ATTR_BINDS ADD FOREIGN KEY
+(attr_id) REFERENCES ATTRIBUTES(attr_id);
+
+CREATE TABLE REFERENCES (
+  attr_id NUMBER,
+  object_id NUMBER,
+  reference NUMBER,
+  show_order NUMBER
+);
+
+ALTER TABLE REFERENCES ADD FOREIGN KEY
+(attr_id) REFERENCES ATTRIBUTES(attr_id);
+ALTER TABLE REFERENCES ADD FOREIGN KEY
+(object_id) REFERENCES OBJECTS(object_id);
+ALTER TABLE REFERENCES ADD FOREIGN KEY
+(reference) REFERENCES OBJECTS(object_id);
+
+CREATE TABLE PARAMS (
+  attr_id NUMBER NOT NULL,
+  object_id NUMBER NOT NULL,
+  value VARCHAR2(45) UNIQUE,
+  date_value DATE,
+  show_order NUMBER
+);
+
+ALTER TABLE PARAMS ADD FOREIGN KEY
+(attr_id) REFERENCES ATTRIBUTES(attr_id);
+ALTER TABLE PARAMS ADD FOREIGN KEY
+(object_id) REFERENCES OBJECTS(object_id);
